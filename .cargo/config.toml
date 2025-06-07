@@ -1,0 +1,5 @@
+[target.'cfg(windows)']
+rustflags = [
+    "-L", "C:/tools/opencv/build/x64/vc16/lib",
+    "-l", "opencv_world4110",
+]

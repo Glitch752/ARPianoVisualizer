@@ -1,0 +1,10 @@
+[package]
+name = "ARPianoVisualizer"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+bevy = "0.16.1"
+midir = "0.10.1"
+# opencv = "0.94.4"
+opencv = { version = "0.94.4", features = ["clang-runtime"] }
