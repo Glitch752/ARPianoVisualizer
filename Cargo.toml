@@ -13,6 +13,7 @@ opt-level = 3
 
 [dependencies]
 bevy = "0.16.1"
+bytemuck = "1.23.0"
 midir = "0.10.1"
 # opencv = "0.94.4"
 opencv = { version = "0.94.4", features = ["clang-runtime"] }
