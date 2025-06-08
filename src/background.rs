@@ -14,9 +14,12 @@ use bevy::render::view::{ExtractedView, ViewTarget};
 use bevy::render::RenderApp;
 use opencv::core::{AlgorithmHint, Mat, MatTraitConst, MatTraitConstManual};
 use opencv::imgproc;
-use opencv::videoio::VideoCaptureTrait;
 
-use crate::video::{ConvertedWebcamFrame, VideoCapture, WebcamFrame};
+use crate::video::WebcamFrame;
+use crate::VideoDrawSystems;
+
+#[derive(Resource, Default)]
+pub struct ConvertedWebcamFrame(pub Mat);
 
 #[derive(Deref, DerefMut, Default, Resource, ExtractResource, Clone)]
 pub struct BackgroundImage(pub Image);
@@ -266,18 +269,11 @@ impl Node for BackgroundNode {
 pub fn handle_background_image(
     mut image: ResMut<BackgroundImage>,
     mut webcam_frame: ResMut<WebcamFrame>,
-    mut converted_webcam_frame: ResMut<ConvertedWebcamFrame>,
-    cam: Res<VideoCapture>,
+    mut converted_webcam_frame: ResMut<ConvertedWebcamFrame>
 ) {
     // Retrieve the latest frame from the webcam
     let frame = &mut webcam_frame.0;
     let converted_frame = &mut converted_webcam_frame.0;
-
-    cam.0.lock().expect("Failed to lock video capture mutex").read(frame).expect("Failed to read frame from video capture");
-    if frame.empty() {
-        eprintln!("No frame captured from webcam");
-        return;
-    }
 
     if imgproc::cvt_color(frame, converted_frame, imgproc::COLOR_BGR2RGBA, 0, AlgorithmHint::ALGO_HINT_DEFAULT).is_err() {
         eprintln!("Failed to convert frame to RGBA format");
@@ -311,11 +307,12 @@ pub struct CameraBackground;
 
 impl Plugin for CameraBackground {
     fn build(&self, app: &mut App) {
-        app.insert_resource(BackgroundImage(Image::default()))
-            .insert_resource(WebcamFrame(Mat::default()))
+        app
+            .insert_resource(ClearColor(Color::NONE))
+            .insert_resource(BackgroundImage(Image::default()))
             .insert_resource(ConvertedWebcamFrame(Mat::default()))
             .add_plugins(ExtractResourcePlugin::<BackgroundImage>::default())
-            .add_systems(Update, handle_background_image);
+            .add_systems(Update, handle_background_image.in_set(VideoDrawSystems));
 
         let render_app = app.sub_app_mut(RenderApp);
 
