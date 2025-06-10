@@ -16,6 +16,7 @@ pub struct VideoDrawSystems;
 
 mod video;
 mod background;
+pub mod testing;
 
 fn setup(
     mut commands: Commands,
@@ -24,18 +25,18 @@ fn setup(
     
 ) {
     // Insert a small ground plane
-    commands.spawn((
-        Mesh3d(meshes.add(Plane3d::default().mesh().size(500.0, 500.0))),
-        MeshMaterial3d(materials.add(Color::from(SILVER))),
-        Transform::from_xyz(0.0, -500.0, 0.0)
-    ));
+    // commands.spawn((
+    //     Mesh3d(meshes.add(Plane3d::default().mesh().size(500.0, 500.0))),
+    //     MeshMaterial3d(materials.add(Color::from(SILVER))),
+    //     Transform::from_xyz(0.0, -500.0, 0.0)
+    // ));
 }
 
 fn main() -> opencv::Result<()> {
 
     App::new()
         .add_plugins(DefaultPlugins.set(ImagePlugin::default_nearest()))
-        .add_plugins((background::CameraBackground, video::VideoCapturePlugin, video::aruco_camera::ArUcoCameraPlugin))
+        .add_plugins((background::CameraBackground, video::VideoCapturePlugin, video::aruco_camera::ArUcoCameraPlugin, testing::TestingPlugin))
         .add_systems(Startup, setup)
         .configure_sets(Update, (
             VideoCaptureSystems,
